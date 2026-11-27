@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../context/AuthContext";
+import Avatar from "./Avatar";
+import Icon from "./Icon";
 
 // Splits text so every #hashtag becomes a clickable link.
 function renderText(text) {
@@ -14,6 +16,18 @@ function renderText(text) {
       part
     )
   );
+}
+
+function timeAgo(date) {
+  const s = Math.floor((Date.now() - new Date(date)) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + "m";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + "h";
+  const d = Math.floor(h / 24);
+  if (d < 7) return d + "d";
+  return new Date(date).toLocaleDateString();
 }
 
 export default function PostCard({ post, onDeleted, showReplyLink = true }) {
@@ -43,19 +57,32 @@ export default function PostCard({ post, onDeleted, showReplyLink = true }) {
   };
 
   return (
-    <div className="card post">
-      <div className="post-head">
-        <Link to={"/u/" + authorName} className="author">@{authorName}</Link>
-        <span className="time">{new Date(post.createdAt).toLocaleString()}</span>
+    <article className="card post">
+      <Link to={"/u/" + authorName}><Avatar name={authorName} /></Link>
+      <div className="post-body">
+        <div className="post-head">
+          <Link to={"/u/" + authorName} className="author">@{authorName}</Link>
+          <span className="time" title={new Date(post.createdAt).toLocaleString()}>
+            · {timeAgo(post.createdAt)}
+          </span>
+        </div>
+        <p className="post-text">{renderText(post.text)}</p>
+        <div className="post-actions">
+          <button className={liked ? "act like on" : "act like"} onClick={toggleLike}>
+            <Icon name="heart" size={18} fill={liked ? "currentColor" : "none"} /> {likes.length}
+          </button>
+          {showReplyLink && (
+            <Link to={"/post/" + post._id} className="act">
+              <Icon name="message" size={18} /> Reply
+            </Link>
+          )}
+          {canDelete && (
+            <button className="act danger" title="Delete" onClick={handleDelete}>
+              <Icon name="trash" size={18} />
+            </button>
+          )}
+        </div>
       </div>
-      <p className="post-text">{renderText(post.text)}</p>
-      <div className="post-actions">
-        <button className={liked ? "link-btn liked" : "link-btn"} onClick={toggleLike}>
-          {liked ? "♥" : "♡"} {likes.length}
-        </button>
-        {showReplyLink && <Link to={"/post/" + post._id} className="link-btn">Reply</Link>}
-        {canDelete && <button className="link-btn danger" onClick={handleDelete}>Delete</button>}
-      </div>
-    </div>
+    </article>
   );
 }

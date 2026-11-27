@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import Composer from "../components/Composer";
 import PostCard from "../components/PostCard";
 import Trending from "../components/Trending";
+import { PostSkeleton } from "../components/Skeleton";
 
 const LIMIT = 10;
 
@@ -15,6 +16,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false);
   const [newCount, setNewCount] = useState(0);
   const [trendKey, setTrendKey] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const followingRef = useRef(new Set());
 
@@ -28,6 +30,7 @@ export default function Home() {
     } catch (err) {
       setError(err.message);
     }
+    setLoading(false);
   };
 
   useEffect(() => { loadFeed(1); }, []);
@@ -58,18 +61,24 @@ export default function Home() {
   return (
     <div className="layout">
       <main>
-        <Composer placeholder="What's happening? Use #hashtags" buttonText="Chirp" onSubmit={createPost} />
+        <div className="page-head"><h2>Home</h2></div>
+        <Composer placeholder="What is happening? Use #hashtags" buttonText="Chirp" onSubmit={createPost} />
         {newCount > 0 && (
           <button className="new-badge" onClick={showNew}>
             {newCount} new {newCount === 1 ? "post" : "posts"} - click to refresh
           </button>
         )}
         {error && <p className="error">{error}</p>}
-        {posts.length === 0 && !error && (
-          <div className="card muted">Your feed is empty. Post something or follow other users.</div>
+        {loading && [1, 2, 3].map((n) => <PostSkeleton key={n} />)}
+        {!loading && posts.length === 0 && !error && (
+          <div className="card empty">
+            <h3>Your feed is empty</h3>
+            <p className="muted">Post something, or follow other users to see their posts here.</p>
+          </div>
         )}
         {posts.map((p) => (
-          <PostCard key={p._id} post={p} onDeleted={(id) => setPosts((old) => old.filter((x) => x._id !== id))} />
+          <PostCard key={p._id} post={p}
+            onDeleted={(id) => setPosts((old) => old.filter((x) => x._id !== id))} />
         ))}
         {hasMore && (
           <button className="btn btn-outline wide" onClick={() => loadFeed(page + 1)}>Load more</button>

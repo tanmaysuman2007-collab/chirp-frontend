@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AuthShell from "../components/AuthShell";
 
 export default function Login() {
   const { login } = useAuth();
@@ -21,17 +22,18 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-box card">
-      <h2>Login to Chirp</h2>
+    <AuthShell title="Welcome back" subtitle="Log in to see what your campus is talking about.">
       <form onSubmit={handleSubmit}>
-        <input className="input" type="email" placeholder="Email" value={email}
+        <label>Email</label>
+        <input className="input" type="email" placeholder="you@college.edu" value={email}
           onChange={(e) => setEmail(e.target.value)} required />
-        <input className="input" type="password" placeholder="Password" value={password}
+        <label>Password</label>
+        <input className="input" type="password" placeholder="Your password" value={password}
           onChange={(e) => setPassword(e.target.value)} required />
-        <button className="btn" type="submit">Login</button>
+        <button className="btn wide" type="submit">Log in</button>
       </form>
       {error && <p className="error">{error}</p>}
-      <p className="muted">New here? <Link to="/register">Create an account</Link></p>
-    </div>
+      <p className="muted center">New here? <Link to="/register">Create an account</Link></p>
+    </AuthShell>
   );
 }

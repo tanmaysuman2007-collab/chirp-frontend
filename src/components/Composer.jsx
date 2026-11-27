@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import Avatar from "./Avatar";
 
 export default function Composer({ placeholder, buttonText, onSubmit }) {
+  const { user } = useAuth();
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -18,23 +21,27 @@ export default function Composer({ placeholder, buttonText, onSubmit }) {
     setBusy(false);
   };
 
+  const left = 280 - text.length;
+
   return (
     <div className="card composer">
-      <textarea
-        className="input"
-        rows="3"
-        maxLength={280}
-        placeholder={placeholder}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <div className="composer-row">
-        <span className={text.length > 260 ? "count warn" : "count"}>{text.length}/280</span>
-        <button className="btn" disabled={busy || !text.trim()} onClick={handleSubmit}>
-          {buttonText}
-        </button>
+      <Avatar name={user.username} />
+      <div className="composer-main">
+        <textarea
+          rows="3"
+          maxLength={280}
+          placeholder={placeholder}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <div className="composer-row">
+          <span className={left <= 20 ? "count warn" : "count"}>{left} left</span>
+          <button className="btn" disabled={busy || !text.trim()} onClick={handleSubmit}>
+            {busy ? "Posting..." : buttonText}
+          </button>
+        </div>
+        {error && <p className="error">{error}</p>}
       </div>
-      {error && <p className="error">{error}</p>}
     </div>
   );
 }

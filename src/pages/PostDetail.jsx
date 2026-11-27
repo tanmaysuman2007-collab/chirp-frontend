@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import Composer from "../components/Composer";
+import Icon from "../components/Icon";
 import PostCard from "../components/PostCard";
+import { PostSkeleton } from "../components/Skeleton";
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -15,6 +17,7 @@ export default function PostDetail() {
 
   useEffect(() => {
     setError("");
+    setPost(null);
     api("/posts/" + id).then(setPost).catch((e) => setError(e.message));
     loadReplies().catch(() => setReplies([]));
   }, [id]);
@@ -25,13 +28,19 @@ export default function PostDetail() {
   };
 
   if (error) return <p className="error">{error}</p>;
-  if (!post) return <p className="muted">Loading...</p>;
 
   return (
     <div className="narrow">
-      <PostCard post={post} showReplyLink={false} onDeleted={() => navigate("/")} />
+      <div className="page-head">
+        <Link to="/" className="icon-btn" title="Back"><Icon name="back" /></Link>
+        <h2>Post</h2>
+      </div>
+      {!post ? <PostSkeleton /> : (
+        <PostCard post={post} showReplyLink={false} onDeleted={() => navigate("/")} />
+      )}
       <Composer placeholder="Write a reply..." buttonText="Reply" onSubmit={sendReply} />
-      <h3>Replies ({replies.length})</h3>
+      <h3 className="section-title">Replies ({replies.length})</h3>
+      {replies.length === 0 && <div className="card empty muted">No replies yet. Be the first.</div>}
       {replies.map((r) => (
         <PostCard key={r._id} post={r} showReplyLink={false}
           onDeleted={(rid) => setReplies(replies.filter((x) => x._id !== rid))} />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AuthShell from "../components/AuthShell";
 
 export default function Register() {
   const { register } = useAuth();
@@ -22,19 +23,21 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-box card">
-      <h2>Join Chirp</h2>
+    <AuthShell title="Join Chirp" subtitle="Create your account in a few seconds.">
       <form onSubmit={handleSubmit}>
-        <input className="input" placeholder="Username (min 3 chars)" value={username}
+        <label>Username</label>
+        <input className="input" placeholder="At least 3 characters" value={username}
           onChange={(e) => setUsername(e.target.value)} required />
-        <input className="input" type="email" placeholder="Email" value={email}
+        <label>Email</label>
+        <input className="input" type="email" placeholder="you@college.edu" value={email}
           onChange={(e) => setEmail(e.target.value)} required />
-        <input className="input" type="password" placeholder="Password (min 6 chars)" value={password}
+        <label>Password</label>
+        <input className="input" type="password" placeholder="At least 6 characters" value={password}
           onChange={(e) => setPassword(e.target.value)} required />
-        <button className="btn" type="submit">Register</button>
+        <button className="btn wide" type="submit">Create account</button>
       </form>
       {error && <p className="error">{error}</p>}
-      <p className="muted">Already have an account? <Link to="/login">Login</Link></p>
-    </div>
+      <p className="muted center">Already have an account? <Link to="/login">Log in</Link></p>
+    </AuthShell>
   );
 }
